@@ -1,0 +1,66 @@
+QJsonTreeWidget is a QT library which eases the displaying and editing of JSON structured trees.
+think of your application configuration data, or generally any other kind of data you need to display using a tree.
+
+Usage is really simple, you just have to adopt this format for your tree:
+
+. each line of the JSON file should represent a leaf in your tree (this eases maintenance by hand, but really 
+  you can indent your JSON whatever you prefer), embodied in a JSON object.
+
+. each leaf should have at least a '_desc_' and a 'name' node (not mandatory). if it's a parent node, it must have a '_children_' JSON node.
+
+. the root JSON object must have a 'version' node (to support versioning) and a '_headers_' node'. 
+  format of the _headers_ node is <columndisplayname:JSONtag:columnidx[:draw],...>
+
+  this tells QJSonTreeWidget to display each node named <JSONtag> in a column with header named <columndisplayname> at 
+  index <columnidx>.
+  the optional <draw> parameter is for columns where you need a custom painted widget (not an editor), such as a button.
+
+. each leaf can have one or more widgets to be displayed, actually QJsonTreeWidget supports, as editors, 
+  QLineEdit, QSpinBox, QCheckBox and QComboBox. As static widgets, QPushButton.
+  subtrees having not having "_children_" (empty parents) should have a "_widget_:something": "Tree" set, to recognize them as parents. 
+  
+  format is i.e. "_widget_:JSONtag": "QLineEdit", which displays a QLineEdit for the JSON node named <JSONTag>.
+
+. to display an editor widget, use something like :
+  "value": yourvalue, "_widget_:value": "QLineEdit"
+  
+   to display a static widget:
+  "button1": "QPushButton,,buttontext,,pixmap"
+   where pixmap is a 16x16 icon stored in your resources (i.e. :/images/pixmaps/icon.png). 
+   both icon and text can be present, or just one (i.e. QPushButton,,,,pixmap for no text and icon)
+
+. every leaf can have a '_hide_' parameter, which hides the whole leaf from displaying. 
+  moreover, if you use '_hide_:JSONtag' you can selectively hide only the node named <JSONtag>.
+
+. every leaf can have optional '_readonly_:JSONtag' to selectively display <JSONtag> node as readonly. 
+
+. a parent leaf can have an optional '_template_' bool node. if this is set, the leaf is used as a template leaf 
+  (hidden from display), which means the user can right-click on the leaf to create/delete child leafs of the same type. 
+  
+  moreover, if the template leaf has '_mandatory_' bool node set, at least one leaf of this kind must exist in the 
+  JSON (it can't be removed by the user) 
+ 
+. each widget have its own options, using the format "_option_:JSONtag", which means 'apply this option to the node 
+  named <JSONtag>'. supported options are:
+  
+  QLineEdit: '_regexp_' to set a regular expression validator on the editor.
+  QSpinBox: '_valuemax_' and '_valuemin_' to set min/max limits of the spinbox.
+  QComboBox: '_valuelist_' to set the possible combobox values.
+
+. the tree can be sorted using the setSortingEnabled(), setSortOrder() and setDynamicSortFiltering of QJsonTreeWidget.
+
+. the tree can be exported to QVariantMap, QByteArray JSON, QIODevice using the saveJson() function
+
+. when exporting, you can set the tree to purge JSON tags by using the setPurgeListOnSave() function
+
+. right clicking on the header let you access the sort and save popup menu
+ 
+. search can be performed on the tree using the search() function. You can advance to the next item in the search using F3.
+
+. using CTRL-C you can copy the selected item text to the clipboard.
+
+a sample 'test.json' is included in the package.
+
+have fun,
+valerino
+ 
